@@ -23,6 +23,19 @@ compinit -C
 # TOOLING & PATHS (Global)
 # ==============================================================================
 
+# Dedup path array
+typeset -U path
+
+# Define paths
+path=(
+    "$HOME/.local/bin"
+    $path                     # Keep the default system paths at the end
+)
+
+# Export the uppercase variable for non-Zsh programs
+export PATH
+
+
 # Homebrew
 if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
