@@ -1,0 +1,11 @@
+zsh-users/zsh-autosuggestions           # Fish-like grey predictive text based on history
+zsh-users/zsh-syntax-highlighting       # Colors valid/invalid commands as you type
+zsh-users/zsh-completions               # Adds thousands of tab-completions for modern tools
+
+zsh-users/zsh-history-substring-search  # Type a partial command, hit Up arrow to cycle matches
+agkozak/zsh-z                           # Type `z doc` to instantly jump to a nested Documents folder
+
+ohmyzsh/ohmyzsh path:lib/history        # Better default history behavior
+ohmyzsh/ohmyzsh path:lib/key-bindings   # Fixes Home/End/Delete keys in the terminal
+ohmyzsh/ohmyzsh path:plugins/git        # Gives you fast aliases like `gst` (status), `gco` (checkout)
+ohmyzsh/ohmyzsh path:plugins/sudo       # Press ESC twice to instantly prefix your current line with sudo
