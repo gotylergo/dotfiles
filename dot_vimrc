@@ -1,0 +1,87 @@
+" --- VIM-PLUG PLUGIN MANAGER ---
+" Sets up the plugin manager. Must be at the top.
+call plug#begin('~/.vim/plugged')
+
+" Prettier Plugin for code formatting
+Plug 'prettier/vim-prettier', {
+\ 'do': 'yarn install --frozen-lockfile --production',
+\ 'for': ['php', 'javascript', 'typescript', 'css', 'json', 'html']
+\ }
+
+" Add Vim's official colorscheme collection, which includes zaibatsu
+Plug 'vim/colorschemes'
+
+" You can add other Vim plugins here in the future
+" Example: Plug 'tpope/vim-fugitive'
+
+call plug#end()
+
+" --- PRETTIER CONFIGURATION ---
+
+" Run prettier automatically when you save a file
+autocmd BufWritePre .php,.js,.jsx,.mjs,.ts,.tsx,.css,.json,.html,.sh,*.zsh PrettierAsync
+
+" IMPORTANT: Use the prettier executable from your project's local node_modules
+let g:prettier#exec_cmd_path = "./node_modules/.bin/prettier"
+let g:prettier#autoformat = 0 " Disable default autoformat to use our autocmd
+
+" --- SHFMT CONFIGURATION ---
+" Use shfmt as the formatter for shell scripts
+autocmd FileType sh,zsh setlocal formatprg=shfmt\ -i\ 4
+
+" Optional: A keybinding to format the current file using the formatprg
+" Pressing <leader>f will format the file.
+nnoremap <leader>f :gq<CR>
+
+" --- MY VIM SETTINGS ---
+
+" Enable line numbers
+set number
+
+" Enable syntax highlighting
+syntax on
+
+" Show matching parentheses
+set showmatch
+
+" Enable mouse support
+set mouse=a
+
+" Set tab width to 4 spaces
+set tabstop=4
+set shiftwidth=4
+set expandtab
+
+" Enable auto-indentation
+set autoindent
+set smartindent
+
+" Show line and column number in the status line
+set ruler
+
+" Highlight search results
+set hlsearch
+
+" Incremental search
+set incsearch
+
+" Enable clipboard support
+set clipboard=unnamedplus
+
+" Show command in the bottom bar
+set showcmd
+
+" Show partial commands in the last line of the screen
+set showmode
+
+" Enable persistent undo
+set undofile
+
+" Set the command history to 1000
+set history=1000
+
+" Enable wildmenu for command-line completion
+set wildmenu
+
+" Set a more readable color scheme
+colorscheme zaibatsu

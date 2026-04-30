@@ -2,7 +2,13 @@
 	defaultBranch = main
 [core]
 	editor = code --wait
+	pager = cat
 [user]
 	name = Tyler Justyn
 	email = 15896953+gotylergo@users.noreply.github.com
-
+[pull]
+	rebase = true
+[push]
+	default = simple
+[color]
+	ui = auto

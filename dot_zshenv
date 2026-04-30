@@ -1,0 +1,17 @@
+# ~/.zshenv — sourced for every zsh invocation (interactive, non-interactive,
+# scripts, cron). Keep it minimal: PATH bootstrap and locale, nothing that
+# depends on plugins or interactive features.
+
+# Dedup the path array so re-sourcing doesn't pile up duplicates.
+typeset -U path
+
+path=(
+	"$HOME/.local/bin"
+	"/usr/local/bin"
+	"/usr/bin"
+	"/bin"
+	$path
+)
+export PATH
+
+export LANG="${LANG:-en_US.UTF-8}"

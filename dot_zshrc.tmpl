@@ -1,110 +1,204 @@
-# ==============================================================================
-# ZSH DEFAULTS & BEHAVIOR
-# ==============================================================================
+#!/usr/bin/env zsh
 
-# History Configuration
-HISTFILE=~/.zsh_history
+# -----------------------------------------------------------------------------
+# History
+# -----------------------------------------------------------------------------
+HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000
 SAVEHIST=10000
-setopt append_history          # Append to history file instead of overwriting
-setopt share_history           # Share history across multiple Zsh sessions
-setopt hist_ignore_all_dups    # Remove older duplicate entries from history
-setopt hist_reduce_blanks      # Remove superfluous blanks before recording entry
-setopt HIST_IGNORE_SPACE       # Don't record entries starting with a space
+setopt append_history       # Append to history file instead of overwriting
+setopt share_history        # Share history across multiple zsh sessions
+setopt hist_ignore_all_dups # Drop older duplicate entries
+setopt hist_reduce_blanks   # Trim superfluous blanks before recording
+setopt HIST_IGNORE_SPACE    # Don't record entries starting with a space
 
-# Keybindings
-# bindkey -v                     # Enable vi mode for command line editing
+# -----------------------------------------------------------------------------
+# Shell options & key bindings
+# -----------------------------------------------------------------------------
+setopt autocd               # `cd` is implicit when typing a directory name
+bindkey -e                  # Emacs keybindings (standard)
+export TIME_STYLE=long-iso  # `ls -l` shows ISO timestamps
 
-# Autocompletion
-autoload -Uz compinit
-compinit -C
+# -----------------------------------------------------------------------------
+# Editor detection (Antigravity → VS Code → fallback)
+# -----------------------------------------------------------------------------
+set_editors() {
+	# Antigravity browser IDE
+	if [[ -n "$ANTIGRAVITY_AGENT" ]]; then
+		export EDITOR="vi"
+		export VISUAL="antigravity --wait"
+		export GIT_EDITOR="antigravity --wait"
 
-# ==============================================================================
-# TOOLING & PATHS (Global)
-# ==============================================================================
+	# VS Code integrated terminal
+	elif [[ "$TERM_PROGRAM" == "vscode" ]]; then
+		export EDITOR="vi"
+		export VISUAL="code --wait"
+		export GIT_EDITOR="code --wait"
 
-# Dedup path array
-typeset -U path
+	# Plain shell (SSH, tty, etc.) — pick the best GUI editor available
+	else
+		local editor_cmd="vi"
+		if command -v code &>/dev/null; then
+			editor_cmd="code --wait"
+		elif command -v antigravity &>/dev/null; then
+			editor_cmd="antigravity --wait"
+		fi
 
-# Define paths
-path=(
-    "$HOME/.local/bin"
-    $path                     # Keep the default system paths at the end
+		export EDITOR="vi"
+		export VISUAL="$editor_cmd"
+		export GIT_EDITOR="$editor_cmd"
+	fi
+}
+set_editors
+unset -f set_editors
+
+# Antigravity PTY fix — agents call zsh non-interactively; bail early so the
+# rest of the config (plugins, prompt) doesn't slow them down or hang.
+if [[ -n "$ANTIGRAVITY_AGENT" ]]; then
+	export TERM=dumb
+	export DEBIAN_FRONTEND=noninteractive
+	export GIT_EDITOR=vi
+	export GIT_PAGER=cat
+	export GIT_TERMINAL_PROMPT=0
+	export GIT_MERGE_AUTOEDIT=no
+	unalias -a
+	return 0
+fi
+
+# -----------------------------------------------------------------------------
+# Tooling integrations (interactive shell)
+# -----------------------------------------------------------------------------
+# Homebrew
+if [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
+	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif command -v brew &>/dev/null; then
+	eval "$(brew shellenv)"
+fi
+
+# fnm (Fast Node Manager)
+FNM_PATH="$HOME/.local/share/fnm"
+if [[ -d "$FNM_PATH" ]]; then
+	export PATH="$FNM_PATH:$PATH"
+	eval "$(fnm env)"
+fi
+
+# Go
+if command -v go &>/dev/null; then
+	export PATH="$PATH:$HOME/go/bin"
+fi
+
+# -----------------------------------------------------------------------------
+# Cached compinit — rebuild zcompdump at most once every 24h.
+# Glob (#qNmh-24) = null-glob + mtime less than 24h. Fresh dump → skip rebuild.
+# -----------------------------------------------------------------------------
+safe_compinit() {
+	local -a _valid_fpath
+	local _dir
+	for _dir in $fpath; do
+		[[ -d "$_dir" ]] && _valid_fpath+=("$_dir")
+	done
+	fpath=("${_valid_fpath[@]}")
+
+	autoload -Uz compinit
+	if [[ -n $HOME/.zcompdump(#qNmh-24) ]]; then
+		compinit -C -u
+	else
+		command -v compaudit &>/dev/null && compaudit | xargs chmod g-w 2>/dev/null
+		compinit -u
+	fi
+}
+safe_compinit
+unset -f safe_compinit
+
+# -----------------------------------------------------------------------------
+# Antidote (static-bundle pattern)
+# Source the precompiled bundle on every shell start (much faster than
+# `antidote load`); regenerate it only when .zsh_plugins.txt is newer.
+# -----------------------------------------------------------------------------
+export ANTIDOTE_HOME="${ANTIDOTE_HOME:-$HOME/.cache/antidote}"
+
+ANTIDOTE_PATHS=(
+	"${HOMEBREW_PREFIX:-/home/linuxbrew/.linuxbrew}/opt/antidote/share/antidote/antidote.zsh"
+	"$HOME/.antidote/antidote.zsh"
+	"$HOME/.local/share/antidote/antidote.zsh"
 )
 
-# Export the uppercase variable for non-Zsh programs
-export PATH
+for _f in $ANTIDOTE_PATHS; do
+	if [[ -f "$_f" ]]; then
+		source "$_f"
 
+		_zsh_plugins="${ZDOTDIR:-$HOME}/.zsh_plugins.zsh"
+		if [[ ! $_zsh_plugins -nt ${_zsh_plugins:r}.txt ]]; then
+			antidote bundle <"${_zsh_plugins:r}.txt" >|"$_zsh_plugins"
+		fi
+		source "$_zsh_plugins"
+		unset _zsh_plugins
+		break
+	fi
+done
+unset _f
 
-# Homebrew
-if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-
-# Node.js (fnm)
-FNM_PATH="$HOME/.local/share/fnm"
-if [ -d "$FNM_PATH" ]; then
-    export PATH="$FNM_PATH:$PATH"
-    eval "$(fnm env)"
-fi
-
-# Editor configuration
-if command -v code >/dev/null 2>&1; then
-    export EDITOR="code --wait"
-    export GIT_EDITOR="code --wait"
-    export GITEDITOR="code --wait"
-fi
-
-# Antidote Plugin Manager (Checks for manual or Homebrew install)
-if [[ -f "$HOME/.antidote/antidote.zsh" ]]; then
-    source "$HOME/.antidote/antidote.zsh"
-    antidote load
-elif command -v brew &> /dev/null && [[ -f "$(brew --prefix)/opt/antidote/share/antidote/antidote.zsh" ]]; then
-    source "$(brew --prefix)/opt/antidote/share/antidote/antidote.zsh"
-    antidote load
-fi
-
-# SSH Agent (Standard Linux/WSL)
-ssh_pid=$(pgrep -u "$USER" ssh-agent)
-if [ -z "$ssh_pid" ]; then
-    ssh_env="$(ssh-agent -s)"
-    echo "$ssh_env" | head -n 2 | tee ~/.ssh_agent_env >/dev/null
-fi
-if [ -f ~/.ssh_agent_env ]; then
-    eval "$(cat ~/.ssh_agent_env)"
-fi
-
-# ==============================================================================
-# PLATFORM-SPECIFIC OVERRIDES
-# ==============================================================================
-
+# -----------------------------------------------------------------------------
+# Oh My Posh prompt
+# -----------------------------------------------------------------------------
 {{ if (.chezmoi.kernel.osrelease | lower | contains "microsoft") -}}
-    OMP_THEME_PATH="/mnt/c/Users/tyler/AppData/Local/Programs/oh-my-posh/themes"
-
-    # if ! pgrep -f "wsl-ssh-pageant" >/dev/null; then
-    #     $WSL_LOCALAPPDATA/Programs/WinSSH-Pageant/winssh-pageant.exe --socket "$SSH_AUTH_SOCK" &
-    # fi
+OMP_THEME_PATH="/mnt/c/Users/tyler/AppData/Local/Programs/oh-my-posh/themes"
 {{ else -}}
-    OMP_THEME_PATH="$HOME/.config/oh-my-posh"
+OMP_THEME_PATH="$HOME/.cache/oh-my-posh/themes"
 {{ end -}}
 
-if command -v oh-my-posh &> /dev/null; then
-    eval "$(oh-my-posh init zsh --config $OMP_THEME_PATH/hunk.omp.json)"
+if command -v oh-my-posh &>/dev/null; then
+	eval "$(oh-my-posh init zsh --config "$OMP_THEME_PATH/hunk.omp.json")"
 fi
 
-# ==============================================================================
-# ALIASES & HELPERS
-# ==============================================================================
+# -----------------------------------------------------------------------------
+# Aliases
+# -----------------------------------------------------------------------------
+if command -v eza &>/dev/null; then
+	alias ls='eza --icons --group-directories-first'
+	alias ll='eza -lh --icons --group-directories-first'
+	alias la='eza -a --icons --group-directories-first'
+else
+	alias ls='ls --color=auto'
+	alias ll='ls -lah --color=auto'
+	alias la='ls -A --color=auto'
+fi
 
-alias ls="ls --color=auto"
-alias ll="ls -la"
-alias c="clear"
-alias e="${EDITOR:-vi}"
+if command -v bat &>/dev/null; then
+	alias cat='bat --paging=never'
+fi
 
-# Clipboard Support (WSL & Wayland/KDE Cosmic)
-if [[ -n "$WAYLAND_DISPLAY" ]]; then
-    alias pbcopy='wl-copy'
-    alias pbpaste='wl-paste'
+alias c='clear'
+alias e='${EDITOR:-vi}'
+
+# Clipboard (WSL & Wayland)
+if [[ -n "$WAYLAND_DISPLAY" ]] && command -v wl-copy &>/dev/null; then
+	alias pbcopy='wl-copy'
+	alias pbpaste='wl-paste'
 elif [[ -f /proc/version ]] && grep -qi microsoft /proc/version; then
-    alias pbcopy='clip.exe'
+	alias pbcopy='clip.exe'
+fi
+
+# -----------------------------------------------------------------------------
+# SSH agent
+# -----------------------------------------------------------------------------
+ssh_pid=$(pgrep -u "$USER" ssh-agent 2>/dev/null)
+if [[ -z "$ssh_pid" ]]; then
+	ssh_env="$(ssh-agent -s)"
+	echo "$ssh_env" | head -n 2 | tee "$HOME/.ssh_agent_env" >/dev/null
+fi
+if [[ -f "$HOME/.ssh_agent_env" ]]; then
+	eval "$(cat "$HOME/.ssh_agent_env")" >/dev/null
+fi
+
+# -----------------------------------------------------------------------------
+# Zoxide — must stay last so no later hook overrides chpwd_functions.
+# _ZO_DOCTOR=0 silences zoxide's doctor on every cd; needed because Claude
+# Code's Bash tool replays a snapshot that captures functions but not
+# chpwd_functions, so doctor would otherwise fire on every aliased `cd`.
+# -----------------------------------------------------------------------------
+if command -v zoxide &>/dev/null; then
+	export _ZO_DOCTOR=0
+	eval "$(zoxide init zsh)"
+	alias cd='z'
 fi
