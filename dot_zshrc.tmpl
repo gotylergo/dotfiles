@@ -6,11 +6,6 @@
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000
 SAVEHIST=10000
-setopt append_history       # Append to history file instead of overwriting
-setopt share_history        # Share history across multiple zsh sessions
-setopt hist_ignore_all_dups # Drop older duplicate entries
-setopt hist_reduce_blanks   # Trim superfluous blanks before recording
-setopt HIST_IGNORE_SPACE    # Don't record entries starting with a space
 
 # -----------------------------------------------------------------------------
 # Shell options & key bindings
@@ -178,6 +173,18 @@ if [[ -n "$WAYLAND_DISPLAY" ]] && command -v wl-copy &>/dev/null; then
 elif [[ -f /proc/version ]] && grep -qi microsoft /proc/version; then
 	alias pbcopy='clip.exe'
 fi
+
+# -----------------------------------------------------------------------------
+# History (Options)
+# -----------------------------------------------------------------------------
+# These are set after plugins to ensure they are not overridden.
+# share_history is disabled in favor of inc_append_history for compatibility
+# with per-directory-history.
+unsetopt share_history
+setopt inc_append_history     # Write to history file immediately
+setopt hist_ignore_all_dups   # Drop older duplicate entries
+setopt hist_reduce_blanks     # Trim superfluous blanks before recording
+setopt HIST_IGNORE_SPACE      # Don't record entries starting with a space
 
 # -----------------------------------------------------------------------------
 # SSH agent
