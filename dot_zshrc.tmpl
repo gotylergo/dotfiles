@@ -83,33 +83,16 @@ if command -v go &>/dev/null; then
 fi
 
 # -----------------------------------------------------------------------------
-# Cached compinit — rebuild zcompdump at most once every 24h.
-# Glob (#qNmh-24) = null-glob + mtime less than 24h. Fresh dump → skip rebuild.
-# -----------------------------------------------------------------------------
-safe_compinit() {
-	local -a _valid_fpath
-	local _dir
-	for _dir in $fpath; do
-		[[ -d "$_dir" ]] && _valid_fpath+=("$_dir")
-	done
-	fpath=("${_valid_fpath[@]}")
-
-	autoload -Uz compinit
-	if [[ -n $HOME/.zcompdump(#qNmh-24) ]]; then
-		compinit -C -u
-	else
-		command -v compaudit &>/dev/null && compaudit | xargs chmod g-w 2>/dev/null
-		compinit -u
-	fi
-}
-safe_compinit
-unset -f safe_compinit
-
-# -----------------------------------------------------------------------------
 # Antidote (static-bundle pattern)
 # Source the precompiled bundle on every shell start (much faster than
 # `antidote load`); regenerate it only when .zsh_plugins.txt is newer.
 # -----------------------------------------------------------------------------
+# Define a placeholder compdef to queue definitions until compinit runs.
+typeset -g -a _comp_queue
+compdef() {
+	_comp_queue+=("$*")
+}
+
 export ANTIDOTE_HOME="${ANTIDOTE_HOME:-$HOME/.cache/antidote}"
 
 ANTIDOTE_PATHS=(
@@ -132,6 +115,39 @@ for _f in $ANTIDOTE_PATHS; do
 	fi
 done
 unset _f
+
+# -----------------------------------------------------------------------------
+# Cached compinit — rebuild zcompdump if older than 24h or if .zsh_plugins.txt
+# has been modified since the last dump.
+# Glob (#qNmh-24) = null-glob + mtime less than 24h. Fresh dump → skip rebuild.
+# -----------------------------------------------------------------------------
+safe_compinit() {
+	local -a _valid_fpath
+	local _dir
+	for _dir in $fpath; do
+		[[ -d "$_dir" ]] && _valid_fpath+=("$_dir")
+	done
+	fpath=("${_valid_fpath[@]}")
+
+	autoload -Uz compinit
+	if [[ -n $HOME/.zcompdump(#qNmh-24) && ! $HOME/.zsh_plugins.txt -nt $HOME/.zcompdump ]]; then
+		compinit -C -u
+	else
+		command -v compaudit &>/dev/null && compaudit | xargs chmod g-w 2>/dev/null
+		compinit -u
+	fi
+}
+safe_compinit
+unset -f safe_compinit
+
+# Replay any compdef calls that were queued before compinit ran.
+if (( ${#_comp_queue} )); then
+	local _c
+	for _c in "${_comp_queue[@]}"; do
+		eval "compdef $_c"
+	done
+fi
+unset _comp_queue
 
 # -----------------------------------------------------------------------------
 # Oh My Posh prompt

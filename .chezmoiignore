@@ -2,3 +2,5 @@ README.md
 .git
 .gitignore
 tools.yaml
+.antigravitycli
+.antigravitycli/**
