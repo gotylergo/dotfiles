@@ -1,0 +1,21 @@
+{
+  "ntfy-notification": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 /home/tyler/.gemini/config/skills/ntfy_notify.py"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "ask_permission|ask_question|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/tyler/.gemini/config/skills/ntfy_notify.py"
+          }
+        ]
+      }
+    ]
+  }
+}
