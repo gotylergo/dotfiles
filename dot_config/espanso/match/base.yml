@@ -1,0 +1,52 @@
+# Espanso matches configuration
+# Docs: https://espanso.org/docs/matches/basics/
+
+matches:
+  # Dates & Timestamps
+  - trigger: ":date"
+    replace: "{{mydate}}"
+    vars:
+      - name: mydate
+        type: date
+        params:
+          format: "%Y-%m-%d"
+
+  - trigger: ":time"
+    replace: "{{mytime}}"
+    vars:
+      - name: mytime
+        type: date
+        params:
+          format: "%H:%M"
+
+  - trigger: ":now"
+    replace: "{{isotime}}"
+    vars:
+      - name: isotime
+        type: date
+        params:
+          format: "%Y-%m-%dT%H:%M:%S%z"
+
+  # Personal Info
+  - trigger: ":name"
+    replace: "Tyler Justyn"
+
+  - trigger: ":gitmail"
+    replace: "15896953+gotylergo@users.noreply.github.com"
+
+  # Homelab & Infrastructure
+  - trigger: ":dom"
+    replace: "globa.one"
+
+  - trigger: ":gw"
+    replace: "192.168.1.254"
+
+  # Developer Boilerplate
+  - trigger: ":shbang"
+    replace: "#!/usr/bin/env bash\nset -euo pipefail\n\n"
+
+  - trigger: ":box"
+    replace: "- [ ] "
+
+  - trigger: ":shrug"
+    replace: "¯\\_(ツ)_/¯"
