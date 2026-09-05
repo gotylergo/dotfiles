@@ -14,6 +14,11 @@ setopt autocd               # `cd` is implicit when typing a directory name
 bindkey -e                  # Emacs keybindings (standard)
 export TIME_STYLE=long-iso  # `ls -l` shows ISO timestamps
 
+# Bell configuration (silence error, completion, and history bells)
+unsetopt BEEP
+unsetopt LIST_BEEP
+unsetopt HIST_BEEP
+
 # -----------------------------------------------------------------------------
 # Editor detection (Antigravity → VS Code → fallback)
 # -----------------------------------------------------------------------------
@@ -182,6 +187,8 @@ fi
 alias c='clear'
 alias e='${EDITOR:-vi}'
 
+alias fix-tpm='sudo systemd-cryptenroll --wipe-slot=tpm2 --tpm2-device=auto --tpm2-pcrs=7 /dev/nvme1n1p3'
+
 # Clipboard (WSL & Wayland)
 if [[ -n "$WAYLAND_DISPLAY" ]] && command -v wl-copy &>/dev/null; then
 	alias pbcopy='wl-copy'
@@ -225,3 +232,42 @@ if command -v zoxide &>/dev/null; then
 	eval "$(zoxide init zsh)"
 	alias cd='z'
 fi
+
+# -----------------------------------------------------------------------------
+# Case-insensitive tab completion
+# -----------------------------------------------------------------------------
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+
+# -----------------------------------------------------------------------------
+# AI Agent Wrappers (Level 2 Permissions & Auto-cd to Playground from $HOME)
+# -----------------------------------------------------------------------------
+_agent_sandbox_cd() {
+	if [[ "$PWD" == "$HOME" ]]; then
+		local target="$HOME/Code/playground"
+		[[ -d "$HOME/code/playground" ]] && target="$HOME/code/playground"
+		cd "$target" || return 1
+	fi
+}
+
+agy() {
+	_agent_sandbox_cd
+	command agy --mode accept-edits "$@"
+}
+
+claude() {
+	_agent_sandbox_cd
+	command claude "$@"
+}
+
+opencode() {
+	_agent_sandbox_cd
+	command opencode "$@"
+}
+
+# opencode
+export PATH="$HOME/.opencode/bin:$PATH"
+
+# LM Studio CLI (lms)
+export PATH="$PATH:$HOME/.lmstudio/bin"
+
+
