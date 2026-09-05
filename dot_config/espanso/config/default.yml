@@ -1,0 +1,5 @@
+# Espanso default configuration
+# Docs: https://espanso.org/docs/configuration/basics/
+
+# Automatically inject via clipboard when typing triggers
+backend: Clipboard
