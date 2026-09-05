@@ -1,0 +1,32 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "lmstudio": {
+      "models": {
+        "qwen2.5-coder-7b": {
+          "name": "Qwen 2.5 Coder"
+        },
+        "meta-llama-3.1-8b": {
+          "name": "Llama 3.1"
+        }
+      }
+    }
+  },
+  "model": "lmstudio/qwen2.5-coder-7b",
+  "small_model": "lmstudio/meta-llama-3.1-8b",
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/tyler/Documents/Notes"
+      ]
+    }
+  },
+  "permission": {
+    "read": "allow",
+    "edit": "allow"
+  }
+}
