@@ -187,6 +187,17 @@ fi
 alias c='clear'
 alias e='${EDITOR:-vi}'
 
+# System & Package Management
+alias update-os='sudo dnf upgrade --refresh'
+
+# Workspace & Config
+alias ws-apply='cd ~/Code/workstation-setup && ansible-playbook workstation.yml -K'
+alias chezmoi-apply='chezmoi apply --force ~/.zshrc'
+
+# Fast Navigation
+alias cd-git-root='cd $(git rev-parse --show-toplevel 2>/dev/null)'
+alias cd-gr='cd-git-root'
+
 alias fix-tpm='sudo systemd-cryptenroll --wipe-slot=tpm2 --tpm2-device=auto --tpm2-pcrs=7 /dev/nvme1n1p3'
 
 # Clipboard (WSL & Wayland)
