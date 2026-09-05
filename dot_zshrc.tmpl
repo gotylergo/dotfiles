@@ -167,7 +167,12 @@ OMP_THEME_PATH="$HOME/.cache/oh-my-posh/themes"
 {{ end -}}
 
 if command -v oh-my-posh &>/dev/null; then
-	eval "$(oh-my-posh init zsh --config "$OMP_THEME_PATH/catppuccin_frappe.omp.json")"
+	if [[ -f "$HOME/.config/oh-my-posh/themes/catppuccin_hunk.omp.json" ]]; then
+		eval "$(oh-my-posh init zsh --config "$HOME/.config/oh-my-posh/themes/catppuccin_hunk.omp.json")"
+	else
+		eval "$(oh-my-posh init zsh --config "$OMP_THEME_PATH/hunk.omp.json")"
+	fi
+	enable_poshtransientprompt
 fi
 
 # -----------------------------------------------------------------------------
@@ -216,9 +221,12 @@ alias fix-tpm='sudo systemd-cryptenroll --wipe-slot=tpm2 --tpm2-device=auto --tp
 if [[ -n "$WAYLAND_DISPLAY" ]] && command -v wl-copy &>/dev/null; then
 	alias pbcopy='wl-copy'
 	alias pbpaste='wl-paste'
+	alias clip='wl-copy'
 elif [[ -f /proc/version ]] && grep -qi microsoft /proc/version; then
 	alias pbcopy='clip.exe'
+	alias clip='clip.exe'
 fi
+alias copycmd='fc -ln -1 | pbcopy'
 
 # -----------------------------------------------------------------------------
 # History (Options)
