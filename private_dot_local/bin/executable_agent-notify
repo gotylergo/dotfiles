@@ -13,8 +13,8 @@ priority="${4:-default}"
 
 case "$sound_type" in
   attention|ask|permission|question)
-    sound_file="/usr/share/sounds/freedesktop/stereo/message-new-instant.oga"
-    [[ -f "$sound_file" ]] || sound_file="/usr/share/sounds/freedesktop/stereo/bell.oga"
+    sound_file="/usr/share/sounds/freedesktop/stereo/bell.oga"
+    [[ -f "$sound_file" ]] || sound_file="/usr/share/sounds/gnome/default/alarms/glass-bell.oga"
     tags="rotating_light"
     ;;
   error)
@@ -59,5 +59,9 @@ if [[ -n "${NTFY_TOPIC:-}" ]]; then
     "${NTFY_SERVER:-https://ntfy.sh}/${NTFY_TOPIC}" </dev/null >/dev/null 2>&1 &
 fi
 
-# Antigravity hook contract requirement
-echo '{"decision":"allow"}'
+# Output JSON contract only when invoked by Antigravity hooks.
+# Claude Code and other agents validate hook output against strict schemas
+# and fail if unexpected fields like 'decision' are returned on Stop/Notification events.
+if [[ "$title" == *"Antigravity"* ]]; then
+  echo '{"decision":"allow"}'
+fi
