@@ -1,4 +1,17 @@
 {
+  "agent-rtk": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/tyler/.local/bin/agent-rtk-hook"
+          }
+        ]
+      }
+    ]
+  },
   "agent-notifications": {
     "PreToolUse": [
       {
