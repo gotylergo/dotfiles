@@ -1,0 +1,153 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "version": 3,
+  "final_space": true,
+  "transient_prompt": {
+    "background": "transparent",
+    "foreground": "#a6d189",
+    "template": "\n<#838ba7>{{ now | date \"15:04:05\" }}</> <#8caaee>{{ .PWD }}</>{{ if gt .Code 0 }} <#e78284>\u2718</>{{ else }} <#a6d189>\u276f</>{{ end }} "
+  },
+  "blocks": [
+    {
+      "alignment": "left",
+      "newline": true,
+      "type": "prompt",
+      "segments": [
+        {
+          "background": "#8caaee",
+          "foreground": "#232634",
+          "leading_diamond": "\ue0b6",
+          "options": {
+            "windows": "\ue62a"
+          },
+          "style": "diamond",
+          "template": "{{ if .WSL }}WSL at {{ end }}{{.Icon}}",
+          "type": "os"
+        },
+        {
+          "background": "#8caaee",
+          "foreground": "#232634",
+          "powerline_symbol": "\ue0b0",
+          "options": {
+            "style": "full"
+          },
+          "style": "powerline",
+          "template": "{{ .Path }} ",
+          "type": "path"
+        },
+        {
+          "background": "#a6d189",
+          "foreground": "#232634",
+          "powerline_symbol": "\ue0b0",
+          "style": "powerline",
+          "template": " \ue718 {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }} ",
+          "type": "node"
+        },
+        {
+          "background": "#e5c890",
+          "foreground": "#232634",
+          "powerline_symbol": "\ue0b0",
+          "options": {
+            "fetch_version": false
+          },
+          "style": "powerline",
+          "template": " \ue235 {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }} ",
+          "type": "python"
+        },
+        {
+          "background": "#81c8be",
+          "background_templates": [
+            "{{ if or (.Working.Changed) (.Staging.Changed) }}#ef9f76{{ end }}",
+            "{{ if and (gt .Ahead 0) (gt .Behind 0) }}#e78284{{ end }}",
+            "{{ if gt .Ahead 0 }}#ca9ee6{{ end }}",
+            "{{ if gt .Behind 0 }}#e78284{{ end }}"
+          ],
+          "foreground": "#232634",
+          "powerline_symbol": "\ue0b0",
+          "options": {
+            "fetch_status": true,
+            "fetch_upstream_icon": true
+          },
+          "style": "powerline",
+          "template": " {{ .UpstreamIcon }} {{ .HEAD }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }} ",
+          "type": "git"
+        }
+      ]
+    },
+    {
+      "alignment": "right",
+      "type": "prompt",
+      "segments": [
+        {
+          "background": "#414559",
+          "foreground": "#b5bfe2",
+          "invert_powerline": true,
+          "powerline_symbol": "\ue0b2",
+          "options": {
+            "time_format": "15:04:05"
+          },
+          "style": "powerline",
+          "template": " {{ .CurrentDate | date .Format }} ",
+          "type": "time"
+        },
+        {
+          "background": "#51576d",
+          "foreground": "#c6d0f5",
+          "invert_powerline": true,
+          "powerline_symbol": "\ue0b2",
+          "options": {
+            "always_enabled": true
+          },
+          "style": "powerline",
+          "template": " {{ .FormattedMs }} ",
+          "type": "executiontime"
+        },
+        {
+          "background": "#626880",
+          "foreground": "#e5c890",
+          "invert_powerline": true,
+          "powerline_symbol": "\ue0b2",
+          "style": "powerline",
+          "template": " \u26a1",
+          "type": "root"
+        },
+        {
+          "background": "#626880",
+          "foreground": "#c6d0f5",
+          "invert_powerline": true,
+          "powerline_symbol": "\ue0b2",
+          "style": "powerline",
+          "template": " {{ .UserName }} ",
+          "type": "session"
+        },
+        {
+          "background": "#414559",
+          "foreground": "#c6d0f5",
+          "invert_powerline": true,
+          "style": "diamond",
+          "template": " {{ .Name }} ",
+          "trailing_diamond": "\ue0b4",
+          "type": "shell"
+        }
+      ]
+    },
+    {
+      "alignment": "left",
+      "newline": true,
+      "type": "prompt",
+      "segments": [
+        {
+          "style": "plain",
+          "template": " \uf0e7 ",
+          "type": "root"
+        },
+        {
+          "foreground": "#a6d189",
+          "style": "plain",
+          "template": "\u276f",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}
