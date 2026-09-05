@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Unified multi-channel notification for AI agents (AGY, Claude, OpenCode)
+# Usage: agent-notify [title] [message] [sound_type: complete|attention|error] [priority: default|high]
+set -uo pipefail
+
+# Drain stdin so caller write end does not block
+cat >/dev/null 2>&1 || true
+
+title="${1:-Agent Notification}"
+message="${2:-Task update}"
+sound_type="${3:-complete}"
+priority="${4:-default}"
+
+case "$sound_type" in
+  attention|ask|permission|question)
+    sound_file="/usr/share/sounds/freedesktop/stereo/message-new-instant.oga"
+    [[ -f "$sound_file" ]] || sound_file="/usr/share/sounds/freedesktop/stereo/bell.oga"
+    tags="rotating_light"
+    ;;
+  error)
+    sound_file="/usr/share/sounds/freedesktop/stereo/dialog-error.oga"
+    tags="warning"
+    ;;
+  complete|done|*)
+    sound_file="/usr/share/sounds/freedesktop/stereo/complete.oga"
+    tags="white_check_mark"
+    ;;
+esac
+
+# Play sound detached from caller file descriptors to prevent Go WaitDelay timeouts
+(
+  pw-play "$sound_file" 2>/dev/null || \
+  paplay "$sound_file" 2>/dev/null || \
+  canberra-gtk-play -f "$sound_file" 2>/dev/null
+) </dev/null >/dev/null 2>&1 &
+
+if command -v notify-send &>/dev/null; then
+  /usr/bin/notify-send -u "${priority:-normal}" -a "AI Agent" "$title" "$message" </dev/null >/dev/null 2>&1 &
+fi
+
+# Broadcast bell to user pts terminals with timeout to avoid hanging on unresponsive ttys
+for pt in /dev/pts/[0-9]*; do
+  if [[ -w "$pt" ]]; then
+    timeout 0.1 bash -c "printf '\a' > '$pt'" </dev/null >/dev/null 2>&1 || true
+  fi
+done
+
+if [[ -f "$HOME/.mcp-env" ]]; then
+  # shellcheck disable=SC1091
+  source "$HOME/.mcp-env" 2>/dev/null || true
+fi
+
+if [[ -n "${NTFY_TOPIC:-}" ]]; then
+  curl -s -o /dev/null \
+    -H "Title: ${title}" \
+    -H "Tags: ${tags}" \
+    -H "Priority: ${priority}" \
+    -d "${message}" \
+    "${NTFY_SERVER:-https://ntfy.sh}/${NTFY_TOPIC}" </dev/null >/dev/null 2>&1 &
+fi
+
+# Antigravity hook contract requirement
+echo '{"decision":"allow"}'

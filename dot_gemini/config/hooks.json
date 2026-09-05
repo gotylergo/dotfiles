@@ -1,0 +1,21 @@
+{
+  "agent-notifications": {
+    "PreToolUse": [
+      {
+        "matcher": "ask_question",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/tyler/.local/bin/agent-notify 'Antigravity' 'Question for you' attention high"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "/home/tyler/.local/bin/agent-notify 'Antigravity' 'Task completed' complete default"
+      }
+    ]
+  }
+}
