@@ -10,6 +10,7 @@ Plug 'prettier/vim-prettier', {
 
 " Add Vim's official colorscheme collection, which includes zaibatsu
 Plug 'vim/colorschemes'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 
 " You can add other Vim plugins here in the future
 " Example: Plug 'tpope/vim-fugitive'
@@ -83,5 +84,8 @@ set history=1000
 " Enable wildmenu for command-line completion
 set wildmenu
 
-" Set a more readable color scheme
-colorscheme zaibatsu
+if has('termguicolors')
+  set termguicolors
+endif
+let g:catppuccin_flavour = 'frappe'
+colorscheme catppuccin_frappe
