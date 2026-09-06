@@ -3,17 +3,20 @@
   "provider": {
     "lmstudio": {
       "models": {
-        "qwen2.5-coder-7b": {
+        "qwen2.5-coder-7b-instruct": {
           "name": "Qwen 2.5 Coder"
         },
-        "meta-llama-3.1-8b": {
+        "llama-3.2-3b-instruct": {
+          "name": "Llama 3.2 3B"
+        },
+        "meta-llama-3.1-8b-instruct": {
           "name": "Llama 3.1"
         }
       }
     }
   },
-  "model": "lmstudio/qwen2.5-coder-7b",
-  "small_model": "lmstudio/meta-llama-3.1-8b",
+  "model": "lmstudio/qwen2.5-coder-7b-instruct",
+  "small_model": "lmstudio/llama-3.2-3b-instruct",
   "mcp": {
     "filesystem": {
       "type": "local",
@@ -23,6 +26,28 @@
         "@modelcontextprotocol/server-filesystem",
         "/home/tyler/Documents/Notes"
       ]
+    },
+    "hortusfox": {
+      "type": "local",
+      "command": [
+        "node",
+        "/home/tyler/Code/hortusfox-mcp/dist/index.js"
+      ],
+      "environment": {
+        "HORTUSFOX_URL": "http://192.168.0.2:8085",
+        "HORTUSFOX_API_TOKEN": "fb273cfb9bdb892e1fd7a12c5bd68af0"
+      }
+    },
+    "digital-twin": {
+      "type": "local",
+      "command": [
+        "/home/tyler/Code/personal-rag/venv/bin/python3",
+        "/home/tyler/Code/personal-rag/mcp_server.py"
+      ],
+      "environment": {
+        "QDRANT_HOST": "http://192.168.0.2:6333",
+        "LM_STUDIO_HOST": "http://localhost:1234/v1"
+      }
     }
   },
   "permission": {
