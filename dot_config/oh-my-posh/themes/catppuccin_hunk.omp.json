@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
   "version": 3,
+  "console_title_template": "{{ .Folder }}",
   "final_space": true,
   "transient_prompt": {
     "background": "transparent",
