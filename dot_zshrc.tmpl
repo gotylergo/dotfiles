@@ -19,8 +19,26 @@ unsetopt BEEP
 unsetopt LIST_BEEP
 unsetopt HIST_BEEP
 
-# Disable bracketed paste escape sequences
-unset zle_bracketed_paste
+# Home/End/Delete. Terminals disagree on whether these arrive as the normal
+# (CSI) or application (SS3) form, and zsh binds neither by default, so both
+# are bound. Without this, Tabby/xterm.js leaves literal ~ and [H on the line.
+bindkey '^[[H'    beginning-of-line       # Home  (CSI)
+bindkey '^[OH'    beginning-of-line       # Home  (SS3)
+bindkey '^[[1~'   beginning-of-line       # Home  (VT)
+bindkey '^[[F'    end-of-line             # End   (CSI)
+bindkey '^[OF'    end-of-line             # End   (SS3)
+bindkey '^[[4~'   end-of-line             # End   (VT)
+bindkey '^[[3~'   delete-char             # Delete
+bindkey '^[[3;5~' kill-word               # Ctrl-Delete
+bindkey '^[[1;5C' forward-word            # Ctrl-Right
+bindkey '^[[1;5D' backward-word           # Ctrl-Left
+bindkey '^H'      backward-kill-word      # Ctrl-Backspace
+
+# NOTE: `unset zle_bracketed_paste` used to live here. It was the cause of the
+# stray 200~ / 201~ around pasted text: a TUI that exits badly leaves the
+# terminal in bracketed-paste mode, and with the option unset zle never strips
+# the markers it is still being sent. Leaving zsh to manage the option means
+# zle re-asserts the correct mode at every prompt and always strips them.
 
 # -----------------------------------------------------------------------------
 # Editor detection (Antigravity → VS Code → fallback)
