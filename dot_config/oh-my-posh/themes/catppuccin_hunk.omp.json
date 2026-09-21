@@ -1,12 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
   "version": 3,
-  "console_title_template": "{{ .Folder }}",
   "final_space": true,
   "transient_prompt": {
     "background": "transparent",
     "foreground": "#a6d189",
-    "template": "\n<#838ba7>{{ now | date \"15:04:05\" }}</> <#8caaee>{{ .PWD }}</>{{ if gt .Code 0 }} <#e78284>\u2718</>{{ else }} <#a6d189>\u276f</>{{ end }} "
+    "template": "\n<#838ba7>{{ now | date \"15:04:05\" }}</> <#ca9ee6>{{ if .Env.HOST_PROMPT_ICON }}{{ .Env.HOST_PROMPT_ICON }}{{ else if .Env.HOST_ALIAS }}{{ .Env.HOST_ALIAS }}{{ else }}{{ .HostName }}{{ end }}</><#838ba7>:</><#8caaee>{{ .PWD }}</>{{ if gt .Code 0 }} <#e78284>\u2718</>{{ else }} <#a6d189>\u276f</>{{ end }} "
   },
   "blocks": [
     {
@@ -15,14 +14,14 @@
       "type": "prompt",
       "segments": [
         {
-          "background": "#8caaee",
+          "background": "#ca9ee6",
           "foreground": "#232634",
           "leading_diamond": "\ue0b6",
           "options": {
             "windows": "\ue62a"
           },
           "style": "diamond",
-          "template": "{{ if .WSL }}WSL at {{ end }}{{.Icon}}",
+          "template": "{{ if .WSL }}WSL at {{ end }}{{.Icon}} {{ if .Env.HOST_PROMPT_ICON }}{{ .Env.HOST_PROMPT_ICON }}{{ else if .Env.HOST_ALIAS }}{{ .Env.HOST_ALIAS }}{{ else }}{{ .HostName }}{{ end }} ",
           "type": "os"
         },
         {
