@@ -175,6 +175,40 @@ if (( ${#_comp_queue} )); then
 fi
 unset _comp_queue
 
+# Host alias for prompt and window titles (override via export HOST_ALIAS in environment)
+if [[ -z "$HOST_ALIAS" ]]; then
+	case "$HOST" in
+		tyler-office-fedora*)
+			export HOST_ALIAS="💻"
+			export HOST_PROMPT_ICON=$'\uf109'
+			;;
+		standard-hosting-clients-[0-9]*)
+			export HOST_ALIAS="shc-${HOST##*standard-hosting-clients-}" ;;
+		standard-hosting-clients*)
+			export HOST_ALIAS="shc" ;;
+		litespeed-hosting-clients-[0-9]*)
+			export HOST_ALIAS="lhc-${HOST##*litespeed-hosting-clients-}" ;;
+		litespeed-hosting-clients*)
+			export HOST_ALIAS="lhc" ;;
+		atnetplus-clients-*)
+			export HOST_ALIAS="atnet-${HOST##*atnetplus-clients-}" ;;
+		great-lakes-petroleum*)
+			export HOST_ALIAS="glp" ;;
+		great-lakes-tds*)
+			export HOST_ALIAS="gl-tds" ;;
+		screen-printing-solutions*)
+			export HOST_ALIAS="sps" ;;
+		education-empowerment-group*)
+			export HOST_ALIAS="eeg" ;;
+		office-maintenance*)
+			export HOST_ALIAS="office-maint" ;;
+		office-staging*)
+			export HOST_ALIAS="office-stage" ;;
+		*)
+			export HOST_ALIAS="${HOST%%.*}" ;;
+	esac
+fi
+
 # -----------------------------------------------------------------------------
 # Oh My Posh prompt
 # -----------------------------------------------------------------------------
@@ -191,6 +225,47 @@ if command -v oh-my-posh &>/dev/null; then
 		eval "$(oh-my-posh init zsh --config "$OMP_THEME_PATH/hunk.omp.json")"
 	fi
 	enable_poshtransientprompt
+fi
+
+# -----------------------------------------------------------------------------
+# Terminal window/tab titles
+# -----------------------------------------------------------------------------
+if [[ $TERM != dumb ]]; then
+	term::set_title_precmd() {
+		[[ -t 1 ]] || return
+		print -Pn "\e]0;${HOST_ALIAS:-%m}:%1~\a"
+	}
+	term::set_title_preexec() {
+		[[ -t 1 ]] || return
+		local cmd="${1%% *}"
+		if [[ "$cmd" == "ssh" ]]; then
+			local -a words=("${(z)1}")
+			shift words
+			local skip_next=0
+			local target=""
+			for w in "${words[@]}"; do
+				if (( skip_next )); then
+					skip_next=0
+					continue
+				fi
+				case "$w" in
+					-[bceFiJlmopswW]) skip_next=1 ;;
+					-*) ;;
+					*) target="${w#*@}"; break ;;
+				esac
+			done
+			case "$target" in
+				standard-hosting-clients-[0-9]*) target="shc-${target##*standard-hosting-clients-}" ;;
+				litespeed-hosting-clients-[0-9]*) target="lhc-${target##*litespeed-hosting-clients-}" ;;
+			esac
+			printf '\e]0;%s\a' "${target:-ssh}"
+		else
+			printf '\e]0;%s\a' "${cmd:t}"
+		fi
+	}
+	autoload -Uz add-zsh-hook
+	add-zsh-hook precmd term::set_title_precmd
+	add-zsh-hook preexec term::set_title_preexec
 fi
 
 # -----------------------------------------------------------------------------
