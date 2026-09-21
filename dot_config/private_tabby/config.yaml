@@ -242,6 +242,8 @@ terminal:
       - '#81c8be'
       - '#a5adce'
   font: FiraCode Nerd Font Mono
+  fontSize: 14
+  hideTabIndex: true
   customColorSchemes:
     - name: Catppuccin Frappe
       foreground: '#c6d0f5'
@@ -314,6 +316,9 @@ appearance:
   colorSchemeMode: auto
   opacity: 0.88
   frame: native
+  flexTabs: true
+  spaciness: 1.1
+  lastTabClosesWindow: true
 hacks: {}
 providerBlacklist: []
 commandBlacklist: []
