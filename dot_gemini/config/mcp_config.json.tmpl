@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+  {{- $first := true -}}
+  {{- range $name, $config := .mcpServers }}
+    {{- if not $first }},{{ end }}{{ $first = false }}
+    "{{ $name }}": {
+      "disabled": true,
+      "command": "{{ $config.executable }}",
+      "args": {{ toJson $config.args }},
+      "env": {
+      {{- $firstEnv := true -}}
+      {{- range $k, $v := $config.env }}
+        {{- if not $firstEnv }},{{ end }}{{ $firstEnv = false }}
+        "{{ $k }}": {{ if eq $v "__BW_HORTUSFOX__" }}"{{ (bitwarden "item" "HortusFox_API_Token").login.password }}"{{ else if eq $v "__BW_GOOGLE__" }}"{{ (bitwarden "item" "Opencode_Google_Token").login.password }}"{{ else }}"{{ $v }}"{{ end }}
+      {{- end }}
+      }
+    }
+  {{- end }}
+  }
+}

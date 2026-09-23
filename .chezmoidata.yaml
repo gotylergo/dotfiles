@@ -1,0 +1,39 @@
+mcpServers:
+  digital-twin:
+    executable: /home/tyler/Code/personal-rag/venv/bin/python3
+    args:
+      - /home/tyler/Code/personal-rag/mcp_server.py
+    env:
+      QDRANT_HOST: "http://192.168.0.2:6333"
+      LM_STUDIO_HOST: "http://localhost:1234/v1"
+  hortusfox:
+    executable: node
+    args:
+      - /home/tyler/Code/hortusfox-mcp/dist/index.js
+    env:
+      HORTUSFOX_URL: "http://192.168.0.2:8085"
+      HORTUSFOX_API_TOKEN: "__BW_HORTUSFOX__"
+  portainer:
+    executable: /home/tyler/.local/bin/portainer-mcp
+    args:
+      - -server
+      - "http://192.168.0.2:9000"
+      - -token
+      - "ptr_RjnXKqCNcaWzNyN27HnGxdSlsexaJfWqKe4Ep/Ek8zk="
+      - -tools
+      - /home/tyler/.gemini/config/portainer-tools.yaml
+    env: {}
+  keep-mcp:
+    executable: uvx
+    args:
+      - keep-mcp
+    env:
+      GOOGLE_EMAIL: gotylergo@gmail.com
+      GOOGLE_MASTER_TOKEN: "__BW_GOOGLE__"
+  filesystem:
+    executable: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "/home/tyler/Documents/Notes"
+    env: {}
