@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "digital-twin": {
+      "args": [
+        "/home/tyler/Code/personal-rag/mcp_server.py"
+      ],
+      "command": "/home/tyler/Code/personal-rag/venv/bin/python3",
+      "disabled": true,
+      "env": {
+        "LM_STUDIO_HOST": "http://localhost:1234/v1",
+        "QDRANT_HOST": "http://192.168.0.2:6333"
+      }
+    },
+    "hortusfox": {
+      "args": [
+        "/home/tyler/Code/hortusfox-mcp/dist/index.js"
+      ],
+      "command": "node",
+      "env": {
+        "HORTUSFOX_API_TOKEN": "REDACTED",
+        "HORTUSFOX_URL": "http://192.168.0.2:8085"
+      }
+    },
+    "portainer": {
+      "args": [
+        "-server",
+        "http://192.168.0.2:9000",
+        "-token",
+        "ptr_RjnXKqCNcaWzNyN27HnGxdSlsexaJfWqKe4Ep/Ek8zk=",
+        "-tools",
+        "/home/tyler/.gemini/config/portainer-tools.yaml"
+      ],
+      "command": "/home/tyler/.local/bin/portainer-mcp",
+      "disabled": true
+    }
+  }
+}
